@@ -7,21 +7,31 @@ const STATUS = {
 };
 const COLORS = ["blue", "yellow", "green", "gray", "red"];
 export class Todo {
-  constructor({ title, info, begin }) {
-    this.id = begin.getTime();
-    this.title =  title && title.length > 0 ? title : "暂无标题";
-    this.info = info && info.length > 0 ? info : "暂无详细说明";
+  constructor({
+    id,
+    title,
+    info,
+    begin,
+    end,
+    children,
+    weight,
+    status,
+    parent
+  }) {
+    this.id = id || begin.getTime();
+    this.title = title || "暂无标题";
+    this.info = info || "暂无详细说明";
     this._begin = begin;
-    this._end = null;
-    this.children = [];
-    this._weight = 1; //default
-    this._status = STATUS["active"];
-    this.parent = {
+    this._end = end;
+    this.children = this.initChildren(children);
+    this._weight = weight || 1; //default
+    this._status = status || STATUS["active"];
+    this.parent = parent || ({
       time: {
         begin: null,
         end: null
       }
-    };
+    });
   }
   set end(time) {
     let temp = time ? time : new Date();
@@ -30,22 +40,22 @@ export class Todo {
       item.parent.time.end = temp;
     });
   }
-  get end(){
+  get end() {
     return this._end
   }
-  get begin(){
+  get begin() {
     return this._begin
   }
   set status(status) {
-    this.status = STATUS[status] ? STATUS[status] : STATUS["active"];
+    this._status = STATUS[status] ? STATUS[status] : STATUS["active"];
   }
-  get status(){
+  get status() {
     return this._status
   }
   set weight(weight) {
     this._weight = weight;
   }
-  get weight(){
+  get weight() {
     return this._weight
   }
   getWidthPercent() {
@@ -54,20 +64,47 @@ export class Todo {
     }
     let end = this._end ? this._end : new Date().getTime();
     let begin = this._begin.getTime();
-    let __end = this.parent.time.end
-      ? this.parent.time.end.getTime()
-      : new Date().getTime();
+    let __end = this.parent.time.end ?
+      this.parent.time.end.getTime() :
+      new Date().getTime();
     let __begin = this.parent.time.begin.getTime();
     return Number(((end - begin) / (__end - __begin)).toFixed(2));
   }
   getStatusColor() {
     return COLORS[this.status];
   }
+  //递归实例化children
+  initChildren(children) {
+    if (!children || children.length == 0) {
+      return []
+    }
+    return children.map(item => {
+      return new Todo(item)
+    })
+  }
+  getJson() {
+    return {
+      id: this.id,
+      title: this.title,
+      info: this.info,
+      begin: this._begin,
+      end: this._end,
+      children: this.children.length > 0 ? (this.children.map(item => {
+        return item.getJson()
+      })) : [],
+      weight: this._weight,
+      status: this._status,
+      parent: this.parent
+    }
+  }
   addTodoItem(item) {
     item instanceof TodoItem &&
       this.children.push(
         (() => {
-          item.parent.time = { begin: this.begin, end: this.end };
+          item.parent.time = {
+            begin: this.begin,
+            end: this.end
+          };
           return item;
         })()
       );
