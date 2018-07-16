@@ -22,10 +22,11 @@ export class Todo {
     this.title = title || "暂无标题";
     this.info = info || "暂无详细说明";
     this._begin = begin;
-    this._end = end;
+    
     this.children = this.initChildren(children);
     this._weight = weight || 1; //default
     this._status = status || STATUS["active"];
+    this._end = this.status == STATUS['active']? new Date(): end;//如果依旧在进行中，应当更新结束时间
     this.parent = parent || ({
       time: {
         begin: null,
@@ -41,7 +42,7 @@ export class Todo {
     });
   }
   get end() {
-    return this._end
+    return this._end 
   }
   get begin() {
     return this._begin
@@ -98,7 +99,7 @@ export class Todo {
     }
   }
   addTodoItem(item) {
-    item instanceof TodoItem &&
+    item instanceof Todo &&
       this.children.push(
         (() => {
           item.parent.time = {

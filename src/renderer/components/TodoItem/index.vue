@@ -3,6 +3,12 @@
         <div class="header">
             <div class="status" :style="status"></div>
             <div class="title">{{todo.title}}</div>
+            <div class="btn-box">
+                <span @click="addChildTodo">添加子事件</span>
+                <span>更改状态</span>
+                <span>展开/收起</span>
+                <span>删除</span>
+            </div>
             <div class="time-line" :style="timeLine">
                 <span class="begin label">{{todo.begin}}</span>
                 <span class="end label">{{todo.end}}</span>
@@ -10,7 +16,7 @@
         </div>
         <div class="child">
             <ul>
-                <li v-for="(item, index) in todo.children" :key="index" v-if="item.children.length != 0">
+                <li v-for="(item, index) in todo.children" :key="index" v-if="item">
                     <todo-item :todo="item"/>
                 </li>
             </ul>
@@ -19,6 +25,8 @@
 </template>
 
 <script>
+import { Todo } from "@/classes/todo";
+import { log } from 'util';
 export default {
   name: "todoItem",
   props: {
@@ -29,6 +37,7 @@ export default {
   },
   computed: {
     timeLine() {
+        console.log(this.todo.getWidthPercent());
       return {
         width: this.todo.getWidthPercent() * 100 + "%"
       };
@@ -39,6 +48,16 @@ export default {
         }
     }
   },
+  watch:{
+    
+  },
+  methods:{
+      addChildTodo(){
+          this.todo.addTodoItem(new Todo({title: '',info: '', begin: new Date()}))
+          console.log(this.todo.children);
+          
+      }
+  }
 //   components: {
 //     todoItem
 //   }
@@ -52,12 +71,13 @@ export default {
 .header{
     overflow: hidden;
     display: flex;
+    position: relative;
 }
 .title{
-    flex: 0 0 100px;
+    flex: 0 0 120px;
     text-align: center;
     /* width: 100px; */
-    height: 44px;
+    height: 60px;
     border: 1px solid #ddd;
 }
 .status{
