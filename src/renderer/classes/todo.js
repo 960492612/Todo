@@ -26,7 +26,7 @@ export class Todo {
     this.children = this.initChildren(children);
     this._weight = weight || 1; //default
     this._status = status || STATUS["active"];
-    this._end = this.status == STATUS['active']? new Date(): end;//如果依旧在进行中，应当更新结束时间
+    this._end = this.isActive()? new Date(): end;//如果依旧在进行中，应当更新结束时间
     this.parent = parent || ({
       time: {
         begin: null,
@@ -42,7 +42,7 @@ export class Todo {
     });
   }
   get end() {
-    return this._end 
+    return this.isActive()? '正在进行中':this._end;
   }
   get begin() {
     return this._begin
@@ -59,8 +59,11 @@ export class Todo {
   get weight() {
     return this._weight
   }
+  isActive(){
+    return this._status == STATUS['active'];
+  }
   getWidthPercent() {
-    if (!this.parent.time.begin) {
+    if (!this.parent.time.begin||this.isActive()) {
       return 1;
     }
     let end = this._end ? this._end : new Date().getTime();
