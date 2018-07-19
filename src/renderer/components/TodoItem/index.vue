@@ -21,12 +21,14 @@
                 </li>
             </ul>
         </div>
+        
     </div>
 </template>
 
 <script>
 import { Todo } from "@/classes/todo";
 import { log } from 'util';
+import {mapGetters, mapActions} from 'vuex'
 export default {
   name: "todoItem",
   props: {
@@ -46,17 +48,22 @@ export default {
         return{
             background: this.todo.getStatusColor()
         }
-    }
+    },
+    
   },
+  
   watch:{
     
   },
   methods:{
       addChildTodo(){
-          this.todo.addTodoItem(new Todo({title: '',info: '', begin: new Date()}))
-          console.log(this.todo.children);
+        //   this.todo.addTodoItem(new Todo({title: '',info: '', begin: new Date()}))
+          this.toggleAddTodoForm()
           
-      }
+      },
+      ...mapActions([
+          'toggleAddTodoForm'
+      ])
   }
 //   components: {
 //     todoItem

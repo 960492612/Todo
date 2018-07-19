@@ -7,12 +7,14 @@
                 <todo-item :todo="item" />
             </div>
         </div>
+        <add-todo-form />
     </div>
 </template>
 
 <script>
 import { Todo } from "@/classes/todo";
 import TodoItem from "./TodoItem";
+import AddTodoForm from './addTodoForm'
 export default {
   data() {
     return {
@@ -21,7 +23,8 @@ export default {
     };
   },
   components: {
-    TodoItem
+    TodoItem,
+    AddTodoForm
   },
   created() {
     this.$db.find({}, (err, docs) => {
@@ -47,10 +50,7 @@ export default {
       this.$db.remove({}, { multi: true }, (err, numRemoved) => {
         this.$db.insert(data, (err, newDocs) => {
           console.log("保存成功");
-          this.$db.find({}, (err, docs) => {
-            console.log(docs);
-            
-          });
+         
         });
       });
     }
