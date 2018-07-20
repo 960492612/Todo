@@ -1,26 +1,29 @@
 <template>
-    <div>
-        <input type="text" @keyup.enter="addTopTodo" v-model="title">
-        <input type="button" @click="save" value="保存">
-        <div class="box">
-            <div class="item" v-for="(item, index) in todoList" :key="index">
-                <todo-item :todo="item" />
-            </div>
-        </div>
-        <add-todo-form />
+  <div>
+    <input type="button" value="添加一级事件" @click="showAddForm">
+    <input type="button" @click="save" value="保存">
+    <div class="box">
+      <div class="item" v-for="(item, index) in todoList" :key="index">
+        <todo-item :todo="item" />
+      </div>
     </div>
+    <add-todo-form @addTodo="addTopTodo" ref="addForm"/>
+  </div>
 </template>
 
 <script>
 import { Todo } from "@/classes/todo";
 import TodoItem from "./TodoItem";
-import AddTodoForm from './addTodoForm'
+import AddTodoForm from "./addTodoForm";
+import { mapGetters, mapActions } from "vuex";
 export default {
   data() {
     return {
-      title: null,
       todoList: []
     };
+  },
+  computed: {
+   
   },
   components: {
     TodoItem,
@@ -38,10 +41,11 @@ export default {
     });
   },
   methods: {
-    addTopTodo() {
-      this.todoList.push(
-        new Todo({ title: this.title, info: "", begin: new Date() })
-      );
+    showAddForm(){
+         this.$refs.addForm.toggleShow()
+      },
+    addTopTodo(data) {
+      this.todoList.push(new Todo({ ...{ begin: new Date() }, ...data }));
     },
     save() {
       let data = this.todoList.map(item => {
@@ -50,10 +54,10 @@ export default {
       this.$db.remove({}, { multi: true }, (err, numRemoved) => {
         this.$db.insert(data, (err, newDocs) => {
           console.log("保存成功");
-         
         });
       });
-    }
+    },
+    // ...mapActions(["toggleAddTodoForm", "addTodoItem"])
   }
 };
 </script>

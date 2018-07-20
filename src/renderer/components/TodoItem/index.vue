@@ -4,7 +4,7 @@
             <div class="status" :style="status"></div>
             <div class="title">{{todo.title}}</div>
             <div class="btn-box">
-                <span @click="addChildTodo">添加子事件</span>
+                <span @click="showAddForm">添加子事件</span>
                 <span>更改状态</span>
                 <span>展开/收起</span>
                 <span>删除</span>
@@ -21,7 +21,7 @@
                 </li>
             </ul>
         </div>
-        
+        <add-todo-form @addTodo="addTodo" ref="addForm"/>
     </div>
 </template>
 
@@ -29,6 +29,7 @@
 import { Todo } from "@/classes/todo";
 import { log } from 'util';
 import {mapGetters, mapActions} from 'vuex'
+import AddTodoForm from "../addTodoForm";
 export default {
   name: "todoItem",
   props: {
@@ -51,18 +52,21 @@ export default {
     },
     
   },
-  
+  components: {
+    AddTodoForm
+  },
   watch:{
     
   },
   methods:{
-      addChildTodo(){
-        //   this.todo.addTodoItem(new Todo({title: '',info: '', begin: new Date()}))
-          this.toggleAddTodoForm()
-          
+      showAddForm(){
+         this.$refs.addForm.toggleShow()
+      },
+      addTodo(data){
+          this.todo.addTodoItem(new Todo({ ...{ begin: new Date() }, ...data }))
       },
       ...mapActions([
-          'toggleAddTodoForm'
+       
       ])
   }
 //   components: {
@@ -71,9 +75,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .todo-box{
     margin-top: 20px;
+    margin-left: 20px;
 }
 .header{
     overflow: hidden;
