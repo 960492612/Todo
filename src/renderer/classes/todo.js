@@ -43,6 +43,7 @@ export class Todo {
   }
   set status(status) {
     this._status = STATUS[status] ? STATUS[status] : STATUS["active"];
+    this.end = new Date()
     this.children.length> 0 && this.children.forEach(item=>{
       
       item.status = status
