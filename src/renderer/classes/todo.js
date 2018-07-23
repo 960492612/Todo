@@ -1,11 +1,5 @@
-const STATUS = {
-  active: 0,
-  pause: 1, //暂停的事件
-  finished: 2,
-  cancel: 3, //取消的事件
-  error: 4
-};
-const COLORS = ["blue", "yellow", "green", "gray", "red"];
+import {STATUS, STATUS_TEXT} from '@/common/js/config'
+const COLORS = ["green", "yellow", "blue", "gray", "red"];
 export class Todo {
   constructor({
     id,
@@ -42,13 +36,18 @@ export class Todo {
     });
   }
   get end() {
-    return this.isActive()? '正在进行中':this._end;
+    return this.isActive()? STATUS_TEXT["active"]:this._end;
   }
   get begin() {
     return this._begin
   }
   set status(status) {
     this._status = STATUS[status] ? STATUS[status] : STATUS["active"];
+    this.children.length> 0 && this.children.forEach(item=>{
+      
+      item.status = status
+    })
+    
   }
   get status() {
     return this._status
