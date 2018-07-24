@@ -1,4 +1,4 @@
-import {STATUS, STATUS_TEXT} from '@/common/js/config'
+import { STATUS, STATUS_TEXT } from "@/common/js/config";
 const COLORS = ["green", "yellow", "blue", "gray", "red"];
 export class Todo {
   constructor({
@@ -16,17 +16,17 @@ export class Todo {
     this.title = title || "暂无标题";
     this.info = info || "暂无详细说明";
     this._begin = begin;
-    
-    this.children = this.initChildren(children);
     this._weight = weight || 1; //default
     this._status = status || STATUS["active"];
-    this._end = this.isActive()? new Date(): end;//如果依旧在进行中，应当更新结束时间
-    this.parent = parent || ({
+    this._end = this.isActive() ? new Date() : end; //如果依旧在进行中，应当更新结束时间
+    this.parent = parent || {
       time: {
         begin: null,
         end: null
       }
-    });
+    };
+    this.editAble = true;
+    this.children = this.initChildren(children);
   }
   set end(time) {
     let temp = time ? time : new Date();
@@ -36,43 +36,59 @@ export class Todo {
     });
   }
   get end() {
-    return this.isActive()? STATUS_TEXT["active"]:this._end;
+    return this._end;
   }
   get begin() {
-    return this._begin
+    return this._begin;
   }
   set status(status) {
-    this._status = STATUS[status] ? STATUS[status] : STATUS["active"];
-    this.end = new Date()
-    this.children.length> 0 && this.children.forEach(item=>{
-      
-      item.status = status
-    })
-    
+    if (this.editAble) {
+      this._status = STATUS[status] ? STATUS[status] : STATUS["active"];
+      this.end = new Date();
+      this.parent.time.end = new Date();
+      this.children.length > 0 &&
+        this.children.forEach(item => {
+          if (status != "active") {
+            item.status = status;
+          }
+
+          item.editAble = this.isActive();
+        });
+    } else {
+      throw new Error("不可更改状态");
+    }
   }
   get status() {
-    return this._status
+    return this._status;
+  }
+  get status_text(){
+    let temp = {}
+    for(let i in STATUS){
+      temp[STATUS[i]] = i
+    }
+    return STATUS_TEXT[temp[this.status]]
   }
   set weight(weight) {
     this._weight = weight;
   }
   get weight() {
-    return this._weight
+    return this._weight;
   }
-  isActive(){
-    return this._status == STATUS['active'];
+  isActive() {
+    return this._status == STATUS["active"];
   }
   getWidthPercent() {
-    if (!this.parent.time.begin||this.isActive()) {
+    if (!this.parent.time.begin || this.isActive()) {
       return 1;
     }
-    let end = this._end ? this._end : new Date().getTime();
+    let end = this._end ? this._end.getTime() : new Date().getTime();
     let begin = this._begin.getTime();
-    let __end = this.parent.time.end ?
-      this.parent.time.end.getTime() :
-      new Date().getTime();
+    let __end = this.parent.time.end.getTime()
+      ? this.parent.time.end.getTime()
+      : new Date().getTime();
     let __begin = this.parent.time.begin.getTime();
-    return Number(((end - begin) / (__end - __begin)).toFixed(2));
+
+    return ((end - begin) / (__end - __begin)).toFixed(2);
   }
   getStatusColor() {
     return COLORS[this.status];
@@ -80,11 +96,13 @@ export class Todo {
   //递归实例化children
   initChildren(children) {
     if (!children || children.length == 0) {
-      return []
+      return [];
     }
     return children.map(item => {
-      return new Todo(item)
-    })
+      let todo = new Todo(item);
+      todo.parent.time.end = this._end;
+      return todo;
+    });
   }
   getJson() {
     return {
@@ -93,13 +111,17 @@ export class Todo {
       info: this.info,
       begin: this._begin,
       end: this._end,
-      children: this.children.length > 0 ? (this.children.map(item => {
-        return item.getJson()
-      })) : [],
+      children:
+        this.children.length > 0
+          ? this.children.map(item => {
+              return item.getJson();
+            })
+          : [],
       weight: this._weight,
       status: this._status,
-      parent: this.parent
-    }
+      parent: this.parent,
+      editAble: this.editAble
+    };
   }
   addTodoItem(item) {
     item instanceof Todo &&

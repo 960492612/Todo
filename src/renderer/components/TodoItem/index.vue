@@ -9,23 +9,23 @@
             <div class="title info">详情:{{todo.info}}</div>
             <div class="btn-box">
                 <span @click="showAddForm">添加子事件</span>
-                <span @click="showStatusSelect" style="position: relative;margin-right: 3px;">更改状态
+                <span @click="showStatusSelect" style="position: relative;margin-right: 3px;" title="点击更改状态">{{todo.status_text}}
                     <div class="status-wrap" v-show="isShowStatusSelect">
                         <span v-for="(item, key) in status_text" :key="key" @click="setStatus(key)">{{item}}</span>
                     </div>
                 </span>
-                <span @click="toggleChild">{{isShowChild?'收起':'展开'}}</span>
+                <span @click="toggleChild">{{isShowChild?'收起':'展开'}}({{todo.children.length}})</span>
                 <span @click="deleteTodo">删除</span>
             </div>
             <div class="time-line" :style="timeLine">
-                <span class="begin label">{{todo.begin}}</span>
-                <span class="end label">{{todo.end}}</span>
+                <span class="begin label">{{formatTime(todo.begin)}}</span>
+                <span class="end label">{{formatTime(todo.end)}}</span>
             </div>
         </div>
         <div class="child" v-show="isShowChild">
             <ul>
                 <li v-for="(item, index) in todo.children" :key="index" v-if="item">
-                    <todo-item :todo="item"/>
+                    <todo-item :todo="item" @deleteTodoItem="deleteTodoItem"/>
                 </li>
             </ul>
         </div>
@@ -35,6 +35,7 @@
 
 <script>
 import { Todo } from "@/classes/todo";
+import {formatTime} from '@/common/js/util'
 import {STATUS, STATUS_TEXT} from '@/common/js/config'
 import { log } from 'util';
 import {mapGetters, mapActions} from 'vuex'
@@ -55,6 +56,8 @@ export default {
   },
   computed: {
     timeLine() {
+        console.log(this.todo.getWidthPercent());
+        
       return {
         width: this.todo.getWidthPercent() * 100 + "%"
       };
@@ -82,18 +85,29 @@ export default {
         this.todo.addTodoItem(new Todo({ ...{ begin: new Date() }, ...data }))
 
       },
+      formatTime(date){
+        //   console.log(date);
+          
+          return formatTime(date.getTime())
+      },
       showStatusSelect(){
           this.isShowStatusSelect = !this.isShowStatusSelect
       },
-      setStatus(key){          
-          this.todo.status = key
-          
+      setStatus(key){   
+          try {
+              this.todo.status = key
+          } catch (error) {
+              alert(error)
+          }      
       },
       toggleChild(){
           this.isShowChild = !this.isShowChild;
       },
       deleteTodo(){
-
+          this.$emit('deleteTodoItem', this.todo.id)
+      },
+      deleteTodoItem(id){
+          this.todo.deleteTodoItem(id)
       },
       ...mapActions([
        
