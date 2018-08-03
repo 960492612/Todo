@@ -1,7 +1,7 @@
 <template>
-  <div class="addTodoForm" v-show="showAddTodoForm">
+  <div class="addTodoForm" v-show="showAddTodoForm" @click="toggleShow">
 
-    <div class="form">
+    <div class="form" v-on:click.stop>
       <div>
         <label for="">事件标题:</label>
         <input type="text" v-model="data.title">
@@ -16,8 +16,8 @@
       </div>
 
       <div class="controls">
-        <input type="button" value="取消" @click="cancel">
-        <input type="button" value="确认" @click="sure">
+        <input type="button" value="取消" @click.stop="cancel" class="cancel">
+        <input type="button" value="确认" @click.stop="sure" class="sure">
       </div>
     </div>
 
@@ -92,6 +92,24 @@ export default {
       border: none;
       border-bottom: 1px solid #777;
     }
+  }
+}
+.controls {
+  .cancel,.sure {
+    display: inline-block;
+    width: 80px;
+    height: 35px;
+    line-height: 35px;
+    border: none;
+    border-radius: 3px;
+    font-size: 13px;
+    outline: none;
+  }
+  .cancel {
+    background: #eee;
+  }
+  .sure {
+    background: rgb(71, 199, 39);
   }
 }
 </style>

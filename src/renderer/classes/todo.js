@@ -1,5 +1,5 @@
 import { STATUS, STATUS_TEXT } from "@/common/js/config";
-const COLORS = ["green", "yellow", "blue", "gray", "red"];
+const COLORS = ["#45b345", "yellow", "#6161e8", "gray", "#fb4913"];
 export class Todo {
   constructor({
     id,
@@ -42,31 +42,31 @@ export class Todo {
     return this._begin;
   }
   set status(status) {
-    if (this.editAble) {
-      this._status = STATUS[status] ? STATUS[status] : STATUS["active"];
+    if (status != "active") {
+      if (
+        this.children.every(item => {
+          return item.status != STATUS['active'];
+        })
+      ) {
+        this._status = STATUS[status];
+        this.end = new Date();
+      }else{
+        throw new Error('尚有子事件正在进行中')
+      }
+    }else{
+      this._status = STATUS[status];
       this.end = new Date();
-      this.parent.time.end = new Date();
-      this.children.length > 0 &&
-        this.children.forEach(item => {
-          if (status != "active") {
-            item.status = status;
-          }
-
-          item.editAble = this.isActive();
-        });
-    } else {
-      throw new Error("不可更改状态");
     }
   }
   get status() {
     return this._status;
   }
-  get status_text(){
-    let temp = {}
-    for(let i in STATUS){
-      temp[STATUS[i]] = i
+  get status_text() {
+    let temp = {};
+    for (let i in STATUS) {
+      temp[STATUS[i]] = i;
     }
-    return STATUS_TEXT[temp[this.status]]
+    return STATUS_TEXT[temp[this.status]];
   }
   set weight(weight) {
     this._weight = weight;
@@ -87,6 +87,7 @@ export class Todo {
       ? this.parent.time.end.getTime()
       : new Date().getTime();
     let __begin = this.parent.time.begin.getTime();
+    // console.log((end-begin)/(__end-__begin));
 
     return ((end - begin) / (__end - __begin)).toFixed(2);
   }

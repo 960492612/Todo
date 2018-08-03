@@ -4,10 +4,10 @@
     <input type="button" @click="save" value="保存"> -->
     <div class="box">
       <div class="item" v-for="(item, index) in todoList" :key="index">
-        <todo-item :todo="item" @deleteTodoItem="deleteTodoItem"/>
+        <todo-item :todo="item" @deleteTodoItem="deleteTodoItem" />
       </div>
     </div>
-    <add-todo-form @addTodo="addTopTodo" ref="addForm"/>
+    <add-todo-form @addTodo="addTopTodo" ref="addForm" />
   </div>
 </template>
 
@@ -16,15 +16,15 @@ import { Todo } from "@/classes/todo";
 import TodoItem from "./TodoItem";
 import AddTodoForm from "./addTodoForm";
 import { mapGetters, mapActions } from "vuex";
-import Vue from 'vue'
-const { ipcRenderer } = require('electron');
+import Vue from "vue";
+const { ipcRenderer } = require("electron");
 // 事件委托
-const eventHub = new Vue()
-ipcRenderer.on('addTopTodo', (event, arg) => {
-    eventHub.$emit('addTopTodo')
+const eventHub = new Vue();
+ipcRenderer.on("addTopTodo", (event, arg) => {
+  eventHub.$emit("addTopTodo");
 });
-ipcRenderer.on('save', (event, arg) => {
-    eventHub.$emit('save')
+ipcRenderer.on("save", (event, arg) => {
+  eventHub.$emit("save");
 });
 export default {
   data() {
@@ -32,9 +32,7 @@ export default {
       todoList: []
     };
   },
-  computed: {
-   
-  },
+  computed: {},
   components: {
     TodoItem,
     AddTodoForm
@@ -49,17 +47,17 @@ export default {
         this.todoList.push(new Todo(element));
       });
     });
-    eventHub.$on('addTopTodo', ()=>{
-      this.showAddForm()
-    })
-    eventHub.$on('save', ()=>{
-      this.save()
-    })
+    eventHub.$on("addTopTodo", () => {
+      this.showAddForm();
+    });
+    eventHub.$on("save", () => {
+      this.save();
+    });
   },
   methods: {
-    showAddForm(){
-         this.$refs.addForm.toggleShow()
-      },
+    showAddForm() {
+      this.$refs.addForm.toggleShow();
+    },
     addTopTodo(data) {
       this.todoList.push(new Todo({ ...{ begin: new Date() }, ...data }));
     },
@@ -73,9 +71,11 @@ export default {
         });
       });
     },
-    deleteTodoItem(id){
-          this.todo.deleteTodoItem(id)
-      },
+    deleteTodoItem(id) {
+      this.todoList = this.todoList.filter(item => {
+        return item.id != id;
+      });
+    }
     // ...mapActions(["toggleAddTodoForm", "addTodoItem"])
   }
 };

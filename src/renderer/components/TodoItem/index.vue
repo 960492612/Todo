@@ -9,7 +9,7 @@
             <div class="title info">详情:{{todo.info}}</div>
             <div class="btn-box">
                 <span @click="showAddForm">添加子事件</span>
-                <span @click="showStatusSelect" style="position: relative;margin-right: 3px;" title="点击更改状态">{{todo.status_text}}
+                <span @click="showStatusSelect" :style="status_color" title="点击更改状态" class="status-btn">{{todo.status_text}}
                     <div class="status-wrap" v-show="isShowStatusSelect">
                         <span v-for="(item, key) in status_text" :key="key" @click="setStatus(key)">{{item}}</span>
                     </div>
@@ -107,6 +107,8 @@ export default {
           this.$emit('deleteTodoItem', this.todo.id)
       },
       deleteTodoItem(id){
+          console.log(this.todo);
+          
           this.todo.deleteTodoItem(id)
       },
       ...mapActions([
@@ -158,6 +160,9 @@ export default {
 .btn-box{
     height: 44px;
     line-height: 44px;
+    .status-btn{
+        position: relative;margin-right: 3px;
+    }
     >span{
         background: rgb(95, 222, 226);
         padding: 5px 3px;
